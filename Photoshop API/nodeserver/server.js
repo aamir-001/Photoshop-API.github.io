@@ -30,6 +30,8 @@ app.use(morgan(':method :url --:status --:date[web]',{stream:logStream}));
 app.use(express.static(path.join(__dirname,"../public")));
 
 var currentTime=Date.now()
+
+
 const storage=multer.diskStorage({
     destination:(req,file,cb)=>{
         cb(null,__dirname+"/Images/")
@@ -42,6 +44,7 @@ const storage=multer.diskStorage({
 });
 
 const upload=multer({storage:storage});
+
 
 
 app.post("/api/v1/resize",upload.single('image'),(req,res)=>{
@@ -93,8 +96,18 @@ function processImage(req,res,width,height){
         if(err) {
             console.log(err)
            
-            logger.errorLogger.log('error',err.message)
-            return res.status(400).send({
+            const d = new Date(Date.now());
+            responseLog="res: status=404 "+d
+            console.log(responseLog)
+
+            fs.appendFile(logFilePath, responseLog, function (err) {
+                if (err) throw err;
+                console.log('File is created successfully.');
+            });
+
+
+            logger.errorLogger.log('error',err.message+" ")
+            return res.status(404).send({
                 message: err.message
              });
         }
@@ -104,6 +117,17 @@ function processImage(req,res,width,height){
                 console.log(err)
                
                 logger.errorLogger.log('error',err.message)
+
+                const d = new Date(Date.now());
+                responseLog="res: status=400 "+d
+                console.log(responseLog)
+
+                fs.appendFile(logFilePath, responseLog, function (err) {
+                    if (err) throw err;
+                    console.log('File is created successfully.');
+                });
+
+
                 return res.status(400).send({
                     message: err.message
                  });
@@ -170,7 +194,15 @@ function processImageToBase64(req,res,width,height){
             console.log(err)
            
             logger.errorLogger.log('error',err.message)
-            return res.status(400).send({
+            const d = new Date(Date.now());
+            responseLog="res: status=404 "+d
+            console.log(responseLog)
+
+            fs.appendFile(logFilePath, responseLog, function (err) {
+                if (err) throw err;
+                console.log('File is created successfully.');
+            });
+            return res.status(404).send({
                 message: err.message
              });
         }
@@ -183,6 +215,16 @@ function processImageToBase64(req,res,width,height){
             fs.unlinkSync("./Images/"+currentTime+req.file.originalname);
             fs.unlinkSync(resizedImage.jpg)
         }catch{}
+
+        const d = new Date(Date.now());
+            responseLog="res: status=200 "+d
+            console.log(responseLog)
+
+            fs.appendFile(logFilePath, responseLog, function (err) {
+                if (err) throw err;
+                console.log('File is created successfully.');
+            });
+
 
         return res.status(200).send({
             message: "your base64 String is "+ base64String
