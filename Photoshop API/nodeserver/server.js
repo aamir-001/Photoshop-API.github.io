@@ -59,18 +59,21 @@ app.post("/api/v1/resize",upload.single('image'),(req,res)=>{
 
     sizeOf(req.file.path, function (err, dimensions) {
         
-        if(isNaN(req.body.width)){
+        if((req.body.width).length==0){
             width=dimensions.width;
+            console.log("width ++"+width)
         }else{
+            console.log("width "+width)
             width=req.body.width;
         }
     
-        if(isNaN(req.body.height)){
+        if((req.body.height).length==0){
             height=dimensions.height;
         }else{
             height=req.body.height;
         }
        
+        console.log("=>"+width+" "+height);
        processImage(req,res,width,height)
 
     });
@@ -133,13 +136,13 @@ app.post("/api/v1/resize.base64",upload.single('image'),(req,res)=>{
 
     sizeOf(req.file.path, function (err, dimensions) {
         
-        if(isNaN(req.body.width)){
+        if((req.body.width).length==0){
             width=dimensions.width;
         }else{
             width=req.body.width;
         }
     
-        if(isNaN(req.body.height)){
+        if((req.body.height).length==0){
             height=dimensions.height;
         }else{
             height=req.body.height;
