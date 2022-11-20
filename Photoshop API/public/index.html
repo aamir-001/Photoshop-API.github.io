@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="client.js" defer></script>
+</head>
+<body>
+    
+    <form method="post" action="/api/v1/resize" id="form" enctype="multipart/form-data">
+        <input type="file" id="image" name="image" required onchange="validate(this.value)">
+        <input type="number" name="width">
+        <input type="number" name="height">
+        <button type="submit" class="button" disabled="true"  form="form" formaction="/api/v1/resize"> Download Resized Image</button>
+        
+        <button type="submit" class="button" disabled="true" form="form" formaction="/api/v1/resize.base64"> Get base64 url</button>
+    </form>
+
+
+</body>
+</html>
