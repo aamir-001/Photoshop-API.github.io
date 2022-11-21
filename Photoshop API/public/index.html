@@ -9,7 +9,7 @@
 </head>
 <body>
     
-    <form method="post" action="/api/v1/resize" id="form" enctype="multipart/form-data">
+    <form method="post" action="/api/v1/resize" id="form" enctype="multipart/form-data" style="margin-top:30px ; margin-left: 50px;" >
         <input type="file" id="image" name="image" required onchange="validate(this.value)">
         <input type="number" name="width" placeholder="leave blank for unchanged">
         <input type="number" name="height" placeholder="leave blank for unchanged">
@@ -17,6 +17,7 @@
         
         <button type="submit" class="button" disabled="true" form="form" formaction="/api/v1/resize.base64"> Get base64 url</button>
     </form>
+
 
 
 </body>

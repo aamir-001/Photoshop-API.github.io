@@ -89,57 +89,65 @@ app.post("/api/v1/resize",upload.single('image'),(req,res)=>{
 
 function processImage(req,res,width,height){
 
-    outFile=currentTime+"resizedImage."+imageFormat;
-    sharp("./Images/"+currentTime+req.file.originalname)
-    .resize(parseInt(width),parseInt(height))
-    .toFile(outFile,(err)=>{
-        if(err) {
-            console.log(err)
-           
-            const d = new Date(Date.now());
-            responseLog="res: status=404 "+d
-            console.log(responseLog)
+    try{
 
-            fs.appendFile(logFilePath, responseLog, function (err) {
-                if (err) throw err;
-                console.log('File is created successfully.');
-            });
-
-
-            logger.errorLogger.log('error',err.message+" ")
-            return res.status(404).send({
-                message: err.message
-             });
-        }
-
-        res.download(outFile,err=>{
+        outFile=currentTime+"resizedImage."+imageFormat;
+        sharp("./Images/"+currentTime+req.file.originalname)
+        .resize(parseInt(width),parseInt(height))
+        .toFile(outFile,(err)=>{
             if(err) {
                 console.log(err)
                
-                logger.errorLogger.log('error',err.message)
-
                 const d = new Date(Date.now());
-                responseLog="res: status=400 "+d
+                responseLog="res: status=404 "+d
                 console.log(responseLog)
-
+    
                 fs.appendFile(logFilePath, responseLog, function (err) {
                     if (err) throw err;
-                    console.log('File is created successfully.');
+                    
                 });
-
-
-                return res.status(400).send({
-                    message: err.message
-                 });
+    
+    
+                logger.errorLogger.log('error',err.message+" ")
+                
+                res.set("Content-Type", "text/html") 
+                res.write("<p>Something went wrong. Please try again.</p>")
+                res.send();
             }
-            console.log("downloaded")
-            try{
+    
+            res.download(outFile,err=>{
+                if(err) {
+                    console.log(err)
+                   
+                    logger.errorLogger.log('error',err.message)
+    
+                    const d = new Date(Date.now());
+                    responseLog="res: status=400 "+d
+                    console.log(responseLog)
+    
+                    fs.appendFile(logFilePath, responseLog, function (err) {
+                        if (err) throw err;
+                       
+                    });
+    
+    
+                    res.set("Content-Type", "text/html") 
+                    res.write("<p>Something went wrong. Please try again.</p>")
+                    res.send();
+                }
+                console.log("downloaded")
+                
                 fs.unlinkSync("./Images/"+currentTime+req.file.originalname);
-                fs.unlinkSync(resizedImage.jpg)
-            }catch{}
+                fs.unlinkSync(outFile)
+                
+            })
+    
         })
 
-    })
+    }catch(err){
+        logger.errorLogger.log('error',err.message)
+    }
+    
 }
 
 //---------------------------------------------
@@ -184,59 +192,66 @@ app.post("/api/v1/resize.base64",upload.single('image'),(req,res)=>{
 
 function processImageToBase64(req,res,width,height){
 
+    try{
+
+        outFile=currentTime+"resizedImage."+imageFormat;
+        var base64String;
+        sharp("./Images/"+currentTime+req.file.originalname)
+        .resize(parseInt(width),parseInt(height))
+        .toFile(outFile,(err)=>{
+            if(err) {
+                console.log(err)
+               
+                logger.errorLogger.log('error',err.message)
+                const d = new Date(Date.now());
+                responseLog="res: status=404 "+d
+                console.log(responseLog)
     
-    outFile=currentTime+"resizedImage."+imageFormat;
-    var base64String;
-    sharp("./Images/"+currentTime+req.file.originalname)
-    .resize(parseInt(width),parseInt(height))
-    .toFile(outFile,(err)=>{
-        if(err) {
-            console.log(err)
-           
-            logger.errorLogger.log('error',err.message)
-            const d = new Date(Date.now());
-            responseLog="res: status=404 "+d
-            console.log(responseLog)
+                fs.appendFile(logFilePath, responseLog, function (err) {
+                    if (err) throw err;
+                   
+                });
+               
+                res.set("Content-Type", "text/html") 
+                res.write("<p>Something went wrong. Please try again.</p>")
+                res.send();
+            }else{
+    
 
-            fs.appendFile(logFilePath, responseLog, function (err) {
-                if (err) throw err;
-                console.log('File is created successfully.');
-            });
-            return res.status(404).send({
-                message: err.message
-             });
-        }
+                var bitmap = fs.readFileSync(outFile);
+        
+                base64String="data:image/jpg;base64," +(new Buffer(bitmap).toString('base64')); 
+                    
+                
+                fs.unlinkSync("./Images/"+currentTime+req.file.originalname);
+                fs.unlinkSync(outFile)
+                
+        
+                const d = new Date(Date.now());
+                    responseLog="res: status=200 "+d
+                    console.log(responseLog)
+        
+                    fs.appendFile(logFilePath, responseLog, function (err) {
+                        if (err) throw err;
+                       
+                    });
+        
+        
+        
+                res.set("Content-Type", "text/html") 
+                res.write("<img src='" + base64String+ "'/><br>")
+                res.write("<h3>Please copy the url given below</h3><br>")
+                res.write("<p style="+"white-space: break-spaces;"+" >"+base64String+"</p>")
+                res.send();
+            }
+        })
+    
 
-        var bitmap = fs.readFileSync(outFile);
-
-        base64String="data:image/jpg;base64," +(new Buffer(bitmap).toString('base64')); 
-            
-        try{
-            fs.unlinkSync("./Images/"+currentTime+req.file.originalname);
-            fs.unlinkSync(resizedImage.jpg)
-        }catch{}
-
-        const d = new Date(Date.now());
-            responseLog="res: status=200 "+d
-            console.log(responseLog)
-
-            fs.appendFile(logFilePath, responseLog, function (err) {
-                if (err) throw err;
-                console.log('File is created successfully.');
-            });
-
-
-        // return res.status(200).send({
-        //     message: "your base64 String is "+ base64String
-        // });   
-
-        res.set("Content-Type", "text/html") 
-        res.write("<img src='" + base64String+ "'/><br>")
-        res.write("<h3>Please copy the url given below</h3><br>")
-        res.write("<p style="+"white-space: break-spaces;"+" >"+base64String+"</p>")
-        res.send();
-    })
-
+    }catch(err){
+        logger.errorLogger.log('error',err.message)
+    }
+    
+    
 }
 
 
