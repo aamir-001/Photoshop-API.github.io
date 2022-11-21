@@ -226,9 +226,15 @@ function processImageToBase64(req,res,width,height){
             });
 
 
-        return res.status(200).send({
-            message: "your base64 String is "+ base64String
-        });   
+        // return res.status(200).send({
+        //     message: "your base64 String is "+ base64String
+        // });   
+
+        res.set("Content-Type", "text/html") 
+        res.write("<img src='" + base64String+ "'/><br>")
+        res.write("<h3>Please copy the url given below</h3><br>")
+        res.write("<p style="+"white-space: break-spaces;"+" >"+base64String+"</p>")
+        res.send();
     })
 
 }
